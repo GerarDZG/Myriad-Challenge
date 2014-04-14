@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Myriad Challenge</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+
+    <!-- Strings related to login for Lancelot -->
+    <string name="lancelot">Lancelot</string>
+    <string name="lancelot_password">arthurDoesntKnow</string>
+
+    <!-- Strings related to quest list -->
+    <string name="quest_list">Ye List of Quests</string>
+    <string name="message1">Quest Name:</string>
+    <string name="message2">Quest Alignment:</string>
+    <string name="message3">Quest Giver:</string>
+    <string name="message4">Quest Details:</string>
+    <string name="message5">Quest Location:</string>
+
+</resources>
