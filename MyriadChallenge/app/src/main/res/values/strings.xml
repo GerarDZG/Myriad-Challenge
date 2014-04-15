@@ -29,5 +29,9 @@
     <string name="message3">Quest Giver:</string>
     <string name="message4">Quest Details:</string>
     <string name="message5">Quest Location:</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_location_of_origin">Location of Origin</string>
+    <string name="settings_display_name">Display Name</string>
 
 </resources>

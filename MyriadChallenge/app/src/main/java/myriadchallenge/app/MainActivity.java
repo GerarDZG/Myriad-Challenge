@@ -23,7 +23,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         logInButton = (Button)findViewById(R.id.sign_in_button);
-
         logInButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
