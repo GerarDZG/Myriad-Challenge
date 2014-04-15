@@ -33,6 +33,15 @@
             android:maxLines="1"
             android:singleLine="true"/>
 
+        <Spinner
+            android:id="@+id/alignment_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/alignment_array"
+            android:prompt="@string/prompt_alignment"
+            android:gravity="center_horizontal|center_vertical"
+            />
+
         <Button
             android:id="@+id/save_button"
             style="?android:textAppearanceSmall"

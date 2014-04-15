@@ -7,17 +7,26 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 public class SettingsActivity extends Activity {
 
-    private Button saveButton, cancelButton;
+    Button saveButton, cancelButton;
 
-    final int BUTTON_PRESSED = 0xFF;
+    String displayName, locationOfOrigin, alignment;
+
+    Intent receiveIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
+
+        receiveIntent = getIntent();
+
+        displayName = receiveIntent.getExtras().getString("Display Name");
+        locationOfOrigin = receiveIntent.getExtras().getString("Location of Origin");
+        alignment = receiveIntent.getExtras().getString("Alignment");
 
         setContentView(R.layout.settings_activity);
 
@@ -45,14 +54,44 @@ public class SettingsActivity extends Activity {
     public void saveButtonPressed(){
 
         EditText enteredDisplayName = (EditText)findViewById(R.id.display_name);
-        String displayName = enteredDisplayName.getText().toString();
-
         EditText enteredLocationOfOrigin = (EditText)findViewById(R.id.location_of_origin);
-        String locationOfOrigin = enteredLocationOfOrigin.getText().toString();
+        Spinner alignmentSpinner = (Spinner)findViewById(R.id.alignment_spinner);
 
         Intent intent = new Intent(SettingsActivity.this, QuestListActivity.class);
+
+        try{
+            // If name was entered, update displayName
+            if( !(enteredDisplayName.getText().toString().equals("")) ){
+                displayName = enteredDisplayName.getText().toString();
+            }
+        }
+        catch (NullPointerException e){
+            // No name entered
+        }
         intent.putExtra("Display Name",displayName);
+
+        try{
+            // If location was entered, update locationOfOrigin
+            if( !(enteredLocationOfOrigin.getText().toString().equals("")) ){
+                locationOfOrigin = enteredLocationOfOrigin.getText().toString();
+            }
+        }
+        catch (NullPointerException e){
+            // No location entered
+        }
         intent.putExtra("Location of Origin",locationOfOrigin);
+
+        try{
+            // If alignment was changed, update alignment
+            if( !(alignmentSpinner.getSelectedItem().toString().equals(alignment)) ){
+                alignment = alignmentSpinner.getSelectedItem().toString();
+            }
+        }
+        catch (NullPointerException e){
+            // No alignment change
+        }
+        intent.putExtra("Alignment",alignment);
+
         startActivity(intent);
     }
 

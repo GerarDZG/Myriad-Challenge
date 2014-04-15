@@ -29,6 +29,7 @@ public class DetailsActivity extends Activity {
     TextView tvQuestName, tvQuestAlignment, tvQuestGiver, tvQuestDetails, tvQuestLocation;
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quest_details_activity);
 

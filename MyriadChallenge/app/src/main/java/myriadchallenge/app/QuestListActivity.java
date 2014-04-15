@@ -16,10 +16,9 @@ import android.widget.TextView;
 public class QuestListActivity extends ListActivity {
 
     ListView questList;
-    TextView tvDispName, tvLocation;
+    TextView tvDispName, tvLocation, tvAlignment;
+    String displayName, locationOfOrigin, alignment;
     SharedPreferences settings;
-
-    final int BUTTON_PRESS = 0xFF;
 
     String[] questsName = new String[] {"Bandits in the Woods", "Special Delivery",
             "Filthy Mongrel"};
@@ -34,6 +33,8 @@ public class QuestListActivity extends ListActivity {
 
         super.onCreate(savedInstanceState);
 
+        String[] quests;
+
         settings = this.getSharedPreferences("settingsMyriad", MODE_PRIVATE);
 
         setContentView(R.layout.quest_list_activity);
@@ -42,15 +43,16 @@ public class QuestListActivity extends ListActivity {
 
         tvDispName = (TextView) findViewById(R.id.shared_preference_display_name);
         tvLocation = (TextView) findViewById(R.id.shared_preference_location);
+        tvAlignment = (TextView) findViewById(R.id.shared_preference_alignment);
+
+        SharedPreferences.Editor settingsEditor = settings.edit();
 
         Intent intent = getIntent();
 
-        String displayName, locationOfOrigin;
-
         try{
             displayName = intent.getExtras().getString("Display Name", "Lancelot");
-            settings.edit().putString("Display Name",displayName);
-            settings.edit().commit();
+            settingsEditor.putString("Display Name", displayName);
+            settingsEditor.commit();
         }
         catch (NullPointerException npe){
             try{
@@ -61,13 +63,13 @@ public class QuestListActivity extends ListActivity {
             }
         }
 
-        tvDispName.setText(displayName);
+        tvDispName.setText("Display Name: " + displayName);
 
 
         try{
             locationOfOrigin = intent.getExtras().getString("Location of Origin", "USA");
-            settings.edit().putString("Location of Origin", locationOfOrigin);
-            settings.edit().commit();
+            settingsEditor.putString("Location of Origin", locationOfOrigin);
+            settingsEditor.commit();
         }
         catch (NullPointerException npe){
             try{
@@ -78,12 +80,43 @@ public class QuestListActivity extends ListActivity {
             }
         }
 
-        tvLocation.setText(locationOfOrigin);
+        tvLocation.setText("Location of Origin: " + locationOfOrigin);
 
+        try{
+            alignment = intent.getExtras().getString("Alignment", "NEUTRAL");
+            settingsEditor.putString("Alignment", alignment);
+            settingsEditor.commit();
+        }
+        catch (NullPointerException npe){
+            try{
+                alignment = settings.getString("Alignment", "NEUTRAL");
+            }
+            catch (NullPointerException e){
+                alignment = "NEUTRAL";
+            }
+        }
+
+        tvAlignment.setText("Alignment: " + alignment);
 
          //TODO: only show quests for the users alignment
-        questList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                questsName));
+
+        // Is the user's alignment GOOD?
+        if(alignment.equals(questsAlignment[0])){
+            quests = new String[] {questsName[0]};
+            questList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                    quests));
+        }
+        // Is the user's alignment EVIL?
+        else if(alignment.equals(questsAlignment[2])){
+            quests = new String[] {questsName[2]};
+            questList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                    quests));
+        }
+        // Else: the user's alignment is NEUTRAL (Since NEUTRAL is the default, this is okay to do)
+        else{
+            questList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                    questsName));
+        }
 
     }
 
@@ -111,7 +144,10 @@ public class QuestListActivity extends ListActivity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             Intent intent = new Intent(QuestListActivity.this, SettingsActivity.class);
-            startActivityForResult(intent,BUTTON_PRESS);
+            intent.putExtra("Display Name",displayName);
+            intent.putExtra("Location of Origin",locationOfOrigin);
+            intent.putExtra("Alignment",alignment);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
