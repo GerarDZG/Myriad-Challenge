@@ -34,8 +34,10 @@
     <string name="settings_location_of_origin">Location of Origin</string>
     <string name="settings_display_name">Display Name</string>
     <string name="prompt_alignment">Select your alignment!</string>
+    <string name="register_short">Register</string>
 
     <string-array name="alignment_array">
+        <item>NONE</item>
         <item>GOOD</item>
         <item>NEUTRAL</item>
         <item>EVIL</item>

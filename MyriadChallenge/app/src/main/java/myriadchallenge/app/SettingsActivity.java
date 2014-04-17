@@ -83,12 +83,17 @@ public class SettingsActivity extends Activity {
 
         try{
             // If alignment was changed, update alignment
-            if( !(alignmentSpinner.getSelectedItem().toString().equals(alignment)) ){
+            if( !(alignmentSpinner.getSelectedItem().toString().equals(alignment)) &&
+                    !(alignmentSpinner.getSelectedItem().toString().equals("NONE")) ){
                 alignment = alignmentSpinner.getSelectedItem().toString();
+            }
+            else{
+                alignment = "NEUTRAL";
             }
         }
         catch (NullPointerException e){
             // No alignment change
+            alignment = "NEUTRAL";
         }
         intent.putExtra("Alignment",alignment);
 

@@ -95,8 +95,6 @@ public class DetailsActivity extends FragmentActivity {
 
         tvQuestDetails.setText("\t" + questsDetails[questNumber] + "\n");
 
-        //tvQuestLocation.setText(" " + questsLocations[questNumber]);
-
         setUpMapIfNeeded();
     }
 
