@@ -4,9 +4,15 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.TextView;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLngBoundsCreator;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import android.support.v4.app.FragmentActivity;
 
@@ -115,10 +121,40 @@ public class DetailsActivity extends FragmentActivity {
     }
 
     private void setUpMap(){
-        mMap.addMarker(new MarkerOptions().position(new LatLng(questsLocations[questNumber][0],
-                questsLocations[questNumber][1])).title("Quest Location Marker"));
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(questGiversLocations[questNumber][0],
-                questGiversLocations[questNumber][1])).title("Quest Location Marker"));
+        LatLng mQuestLocationLatLng = new LatLng(questsLocations[questNumber][0],
+                questsLocations[questNumber][1]);
+
+        LatLng mQuestGiverLatLng = new LatLng(questGiversLocations[questNumber][0],
+                questGiversLocations[questNumber][1]);
+
+        MarkerOptions mQuestLocationMarkerOptions =
+                new MarkerOptions().position(mQuestLocationLatLng).title("Quest Location");
+
+        MarkerOptions mQuestGiverMarkerOptions =
+                new MarkerOptions().position(mQuestGiverLatLng).title("Quest Giver");
+
+        mMap.addMarker(mQuestLocationMarkerOptions);
+        mMap.addMarker(mQuestGiverMarkerOptions);
+
+        LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
+
+        mBuilder.include(mQuestLocationMarkerOptions.getPosition());
+        mBuilder.include(mQuestGiverMarkerOptions.getPosition());
+
+        LatLngBounds mBounds = mBuilder.build();
+
+        // bounding box width in pixels (px)
+        int width = 150;
+
+        // bounding box height in pixels (px)
+        int height = 150;
+
+        // No additional size restrictions on newLatLngBounds
+        int padding = 0;
+
+        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(mBounds,width,height,padding);
+
+        mMap.animateCamera(mCameraUpdate);
     }
 }
