@@ -24,11 +24,11 @@
 
     <!-- Strings related to quest list -->
     <string name="quest_list">Ye List of Quests</string>
-    <string name="message1">Quest Name:</string>
-    <string name="message2">Quest Alignment:</string>
-    <string name="message3">Quest Giver:</string>
-    <string name="message4">Quest Details:</string>
-    <string name="message5">Quest Location:</string>
+    <string name="message1">Quest Name: </string>
+    <string name="message2">Quest Alignment: </string>
+    <string name="message3">Quest Giver: </string>
+    <string name="message4">Quest Details: </string>
+    <string name="message5">Relevant Locations </string>
     <string name="settings_save">Save</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_location_of_origin">Location of Origin</string>

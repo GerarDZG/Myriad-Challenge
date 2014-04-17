@@ -22,7 +22,8 @@
             android:hint="@string/settings_display_name"
             android:inputType="text"
             android:maxLines="1"
-            android:singleLine="true"/>
+            android:singleLine="true"
+        />
 
         <EditText
             android:id="@+id/location_of_origin"
@@ -31,7 +32,8 @@
             android:hint="@string/settings_location_of_origin"
             android:inputType="text"
             android:maxLines="1"
-            android:singleLine="true"/>
+            android:singleLine="true"
+        />
 
         <Spinner
             android:id="@+id/alignment_spinner"
@@ -40,7 +42,7 @@
             android:entries="@array/alignment_array"
             android:prompt="@string/prompt_alignment"
             android:gravity="center_horizontal|center_vertical"
-            />
+        />
 
         <Button
             android:id="@+id/save_button"
@@ -49,7 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/settings_save"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+        />
 
         <Button
             android:id="@+id/cancel_button"
@@ -58,7 +61,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/settings_cancel"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+        />
 
     </LinearLayout>
 </RelativeLayout>

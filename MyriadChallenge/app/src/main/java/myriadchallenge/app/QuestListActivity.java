@@ -25,7 +25,7 @@ public class QuestListActivity extends ListActivity {
 
     String[] questsAlignment = new String[] {"GOOD", "NEUTRAL", "EVIL"};
 
-    String[] questsGiver = new String[] {"HotDogg The Bounty Hunter", "Sir Jimmy The Swift",
+    String[] questsGiver = new String[] {"HotDog The Bounty Hunter", "Sir Jimmy The Swift",
             "Prince Jack, The Iron Horse"};
 
     @Override
@@ -63,7 +63,7 @@ public class QuestListActivity extends ListActivity {
             }
         }
 
-        tvDispName.setText("Display Name: " + displayName);
+        tvDispName.setText("\nDisplay Name: " + displayName);
 
 
         try{
@@ -96,9 +96,7 @@ public class QuestListActivity extends ListActivity {
             }
         }
 
-        tvAlignment.setText("Alignment: " + alignment);
-
-         //TODO: only show quests for the users alignment
+        tvAlignment.setText("Alignment: " + alignment + "\n\n\n");
 
         // Is the user's alignment GOOD?
         if(alignment.equals(questsAlignment[0])){
@@ -123,8 +121,9 @@ public class QuestListActivity extends ListActivity {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
 
+        String questName = l.getItemAtPosition(position).toString();
         Intent intent = new Intent(QuestListActivity.this, DetailsActivity.class);
-        intent.putExtra("quest number",position);
+        intent.putExtra("Quest Name",questName);
         startActivity(intent);
     }
 
