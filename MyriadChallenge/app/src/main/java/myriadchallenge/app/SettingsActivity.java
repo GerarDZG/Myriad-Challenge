@@ -83,8 +83,7 @@ public class SettingsActivity extends Activity {
 
         try{
             // If alignment was changed, update alignment
-            if( !(alignmentSpinner.getSelectedItem().toString().equals(alignment)) &&
-                    !(alignmentSpinner.getSelectedItem().toString().equals("NONE")) ){
+            if( !(alignmentSpinner.getSelectedItem().toString().equals(alignment)) ){
                 alignment = alignmentSpinner.getSelectedItem().toString();
             }
             else{

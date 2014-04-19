@@ -33,25 +33,7 @@
             android:imeOptions="actionUnspecified"
             android:inputType="textPassword"
             android:maxLines="1"
-            android:singleLine="true"/>
-
-        <EditText
-            android:id="@+id/disp_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Display Name"
-            android:inputType="text"
-            android:maxLines="1"
             android:singleLine="true"
-        />
-
-        <Spinner
-            android:id="@+id/disp_alignment_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/alignment_array"
-            android:prompt="@string/prompt_alignment"
-            android:gravity="center_horizontal|center_vertical"
         />
 
 

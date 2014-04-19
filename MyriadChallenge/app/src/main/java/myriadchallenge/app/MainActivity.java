@@ -3,15 +3,20 @@ package myriadchallenge.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.parse.LogInCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 public class MainActivity extends Activity {
 
@@ -22,13 +27,15 @@ public class MainActivity extends Activity {
 
     private Button signInButton, registerButton;
 
-    Spinner spinnerAlignment;
-
     String userLancelot = "Lancelot";
     String userLancelotPassword = "arthurDoesntKnow";
-    String questNameString, alignmentString = "NONE", dispNameString;
+    String questNameString, alignmentString = "NEUTRAL", dispNameString;
 
     int questNumber = 1;
+
+    ParseUser userParse;
+
+    EditText enteredUsername, enteredPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +45,19 @@ public class MainActivity extends Activity {
         registerButton = (Button)findViewById(R.id.register_button);
         signInButton = (Button)findViewById(R.id.sign_in_button);
 
-        spinnerAlignment = (Spinner)findViewById(R.id.disp_alignment_spinner);
+        try{
+        Parse.initialize(this,"terKUGbzwzm9bynvp7g2RFgozgzyLlV6HyZrF5Hm",
+                "NxhfeMyPNSIV0aosXtf9QGTlYbjbufWmeJLUwyRt");
+        }
+        catch (NetworkOnMainThreadException e){
+            // Parse has already been initialized.
+        }
 
+        userParse = new ParseUser();
         signInButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                if(view == signInButton){
+                if (view == signInButton) {
                     loginButtonPressed();
                 }
             }
@@ -82,61 +96,80 @@ public class MainActivity extends Activity {
 
     public void loginButtonPressed(){
 
-        EditText enteredUsername = (EditText)findViewById(R.id.username);
-        String usernameString = enteredUsername.getText().toString();
+        String usernameString, passwordString;
+        boolean validUserAndPassword;
 
-        EditText enteredPassword = (EditText)findViewById(R.id.password);
-        String passwordString = enteredPassword.getText().toString();
+        enteredUsername = (EditText)findViewById(R.id.username);
+        enteredPassword = (EditText)findViewById(R.id.password);
 
-        if(alignmentString.equals("NONE")){
-            alignmentString = "NEUTRAL";
+        try{
+            usernameString = enteredUsername.getText().toString();
+            passwordString = enteredPassword.getText().toString();
+
+            boolean usernameAndPasswordProvided = true;
+
+            if(  usernameString.isEmpty() ){
+                enteredUsername.setError("Username Is Missing");
+                usernameAndPasswordProvided = false;
+            }
+
+            if( passwordString.isEmpty() ){
+                enteredPassword.setError("Password is Missing");
+                usernameAndPasswordProvided = false;
+            }
+
+            if(usernameAndPasswordProvided){
+                logInUser(usernameString,passwordString);
+            }
         }
-
-        boolean validUserAndPassword = true;
-
-        if( !(usernameString.equals(userLancelot))
-                || !(passwordString.equals(userLancelotPassword)) ){
-            validUserAndPassword = false;
-        }
-
-        if(validUserAndPassword){
-            Intent intent = new Intent(MainActivity.this, QuestListActivity.class);
-            intent.putExtra("Display Name", dispNameString);
-            intent.putExtra("Alignment", alignmentString);
-            startActivity(intent);
-        }
-        else{
-            Toast.makeText(this, "Incorrect Username/Password Combination", 0).show();
-            enteredPassword.setText("");
-            enteredUsername.setText("");
+        catch(NullPointerException e){
+            Toast.makeText(this, "Looks like one of the fields was not entered!", 0).show();
         }
     }
 
+    public void logInUser(String user, String pass){
 
+        boolean logInSuccess = false;
+
+        userParse.logInInBackground(user,pass,new LogInCallback() {
+            @Override
+            public void done(ParseUser parseUser, ParseException e) {
+                if(parseUser != null){
+                    Intent intent = new Intent(MainActivity.this, QuestListActivity.class);
+                    startActivity(intent);
+                }
+                else{
+                    switch (e.getCode()) {
+                        default:
+                        case ParseException.OBJECT_NOT_FOUND:
+                            enteredPassword.setText("");
+                            enteredUsername.setText("");
+                            enteredPassword.setError("Incorrect Username/Password Combination " +
+                                    "or User Not Registered");
+                            break;
+                        case ParseException.CONNECTION_FAILED:
+                            Toast.makeText(getApplicationContext(),"Connection Failed",0).show();
+                            break;
+                    }
+
+
+
+                }
+            }
+        });
+    }
 
     public void registerButtonPressed(){
 
-        //TODO: What happens when a user wants to register
         EditText enteredUsername = (EditText)findViewById(R.id.username);
         String usernameString = enteredUsername.getText().toString();
 
         EditText enteredPassword = (EditText)findViewById(R.id.password);
         String passwordString = enteredPassword.getText().toString();
 
-        //TODO add user/password to database
-        EditText enteredDispName = (EditText)findViewById(R.id.disp_name);
-        String dispNameString = enteredDispName.getText().toString();
-
-
-        alignmentString = spinnerAlignment.getSelectedItem().toString();
-
-        if(alignmentString.equals("NONE")){
-            alignmentString = "NEUTRAL";
-        }
-
-        Intent intent = new Intent(MainActivity.this, QuestListActivity.class);
-        intent.putExtra("Display Name", dispNameString);
-        intent.putExtra("Alignment", alignmentString);
+        Intent intent = new Intent(MainActivity.this, RegistrationActivity.class);
+        intent.putExtra("User Name", usernameString);
+        intent.putExtra("Password", passwordString);
         startActivity(intent);
     }
 }
