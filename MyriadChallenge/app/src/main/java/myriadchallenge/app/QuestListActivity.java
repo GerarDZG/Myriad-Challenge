@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.ParseUser;
 
 
 public class QuestListActivity extends ListActivity {
@@ -27,6 +28,8 @@ public class QuestListActivity extends ListActivity {
 
     String[] questsGiver = new String[] {"HotDog The Bounty Hunter", "Sir Jimmy The Swift",
             "Prince Jack, The Iron Horse"};
+
+    ParseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -131,7 +134,7 @@ public class QuestListActivity extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.quest_list_activity, menu);
         return true;
     }
 
@@ -149,7 +152,16 @@ public class QuestListActivity extends ListActivity {
             startActivity(intent);
             return true;
         }
+        else if (id == R.id.action_logout) {
+            logOutUser();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logOutUser(){
+        // finish activity, log out occurs in MainActivity
+        finish();
     }
 
 }

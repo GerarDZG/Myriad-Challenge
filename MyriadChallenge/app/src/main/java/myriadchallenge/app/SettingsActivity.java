@@ -100,7 +100,6 @@ public class SettingsActivity extends Activity {
     }
 
     public void cancelButtonPressed(){
-
-        super.onBackPressed();
+        finish();
     }
 }

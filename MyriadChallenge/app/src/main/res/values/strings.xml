@@ -36,6 +36,7 @@
     <string name="prompt_alignment">Select your alignment!</string>
     <string name="register_short">Register</string>
     <string name="prompt_retype_password">Retype Password</string>
+    <string name="action_logout">Log Out</string>
 
     <string-array name="alignment_array">
         <item>GOOD</item>
