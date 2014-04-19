@@ -29,7 +29,6 @@ public class QuestListActivity extends ListActivity {
     String[] questsGiver = new String[] {"HotDog The Bounty Hunter", "Sir Jimmy The Swift",
             "Prince Jack, The Iron Horse"};
 
-    ParseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){

@@ -1,8 +1,15 @@
 package myriadchallenge.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -11,8 +18,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.LatLngBoundsCreator;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import android.support.v4.app.FragmentActivity;
 
@@ -47,13 +52,56 @@ public class DetailsActivity extends FragmentActivity {
 
     private GoogleMap mMap;
 
-    TextView tvQuestName, tvQuestAlignment, tvQuestGiver, tvQuestDetails, tvQuestLocation;
+    TextView tvQuestName, tvQuestAlignment, tvQuestGiver, tvQuestDetails;
+
+    Button acceptButton;
+
+    SharedPreferences questAcceptedPreference;
+    SharedPreferences.Editor questAcceptedEditor;
 
 
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quest_details_activity);
+
+        acceptButton = (Button)findViewById(R.id.accept_button);
+        questAcceptedPreference = this.getSharedPreferences("Quest Accept",MODE_PRIVATE);
+        questAcceptedEditor = questAcceptedPreference.edit();
+
+        try{
+            if( questAcceptedPreference.getBoolean("Quest Accept",false) == true ){
+                acceptButton.setText("Quest Accepted!");
+            }
+            else{
+                acceptButton.setText("Accept Quest");
+            }
+        }
+        catch(NullPointerException e){
+            questAcceptedEditor.putBoolean("Quest Accept", false);
+            questAcceptedEditor.commit();
+
+            acceptButton.setText("Accept Quest");
+        }
+
+        acceptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(view == acceptButton){
+                    if( questAcceptedPreference.getBoolean("Quest Accept",false) == false ){
+                        questAcceptedEditor.putBoolean("Quest Accept",true);
+                        questAcceptedEditor.commit();
+                        acceptButton.setText("Quest Accepted!");
+                    }
+                    else{
+                        questAcceptedEditor.putBoolean("Quest Accept",false);
+                        questAcceptedEditor.commit();
+                        acceptButton.setText("Accept Quest");
+                    }
+
+                }
+            }
+        });
 
         Intent intent = getIntent();
 
@@ -75,7 +123,7 @@ public class DetailsActivity extends FragmentActivity {
         tvQuestName.setTypeface(Typeface.SERIF, Typeface.BOLD);
 
 
-        tvQuestAlignment.setText(" " + questsAlignments[questNumber] + "\n");
+        tvQuestAlignment.setText("\n " + questsAlignments[questNumber] + "\n");
         tvQuestAlignment.setTypeface(null, Typeface.BOLD);
         switch(questNumber){
             case 0:
