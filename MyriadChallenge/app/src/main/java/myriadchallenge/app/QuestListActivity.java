@@ -219,44 +219,45 @@ public class QuestListActivity extends ListActivity {
         // and save the user's copy.
         else if( quests.size() < questListFromQuestClass.size() ){
             int numberOfNewQuests = questListFromQuestClass.size() - quests.size();
-
+            int numberOfUserQuests = quests.size();
             for(int i = 0; i < numberOfNewQuests; i++){
                 quests.add(new ParseObject("QuestClass_" + user.getObjectId()));
             }
 
             for(int i = 0; i < numberOfNewQuests; i++){
-                quests.get(i+quests.size()).put("questNumber",
-                        questListFromQuestClass.get(i+quests.size()).getInt("questNumber"));
+                quests.get(i+numberOfUserQuests).put("questNumber",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getInt("questNumber"));
 
-                quests.get(i+quests.size()).put("questName",
-                        questListFromQuestClass.get(i+quests.size()).getString("questName"));
+                quests.get(i+numberOfUserQuests).put("questName",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getString("questName"));
 
-                quests.get(i+quests.size()).put("questAlignment",
-                        questListFromQuestClass.get(i+quests.size()).getString("questAlignment"));
+                quests.get(i+numberOfUserQuests).put("questAlignment",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getString("questAlignment"));
 
-                quests.get(i+quests.size()).put("questGiver",
-                        questListFromQuestClass.get(i+quests.size()).getString("questGiver"));
+                quests.get(i+numberOfUserQuests).put("questGiver",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getString("questGiver"));
 
-                quests.get(i+quests.size()).put("questStatus",
-                        questListFromQuestClass.get(i+quests.size()).getString("questStatus"));
+                quests.get(i+numberOfUserQuests).put("questStatus",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getString("questStatus"));
 
-                quests.get(i+quests.size()).put("questGiverLatitude",
-                        questListFromQuestClass.get(i+quests.size()).getDouble("questGiverLatitude"));
+                quests.get(i+numberOfUserQuests).put("questGiverLatitude",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getDouble("questGiverLatitude"));
 
-                quests.get(i+quests.size()).put("questGiverLongitude",
-                        questListFromQuestClass.get(i+quests.size()).getDouble("questGiverLongitude"));
+                quests.get(i+numberOfUserQuests).put("questGiverLongitude",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getDouble("questGiverLongitude"));
 
-                quests.get(i+quests.size()).put("questDetails",
-                        questListFromQuestClass.get(i+quests.size()).getString("questDetails"));
+                quests.get(i+numberOfUserQuests).put("questDetails",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getString("questDetails"));
 
-                quests.get(i+quests.size()).put("questLatitude",
-                        questListFromQuestClass.get(i+quests.size()).getDouble("questLatitude"));
+                quests.get(i+numberOfUserQuests).put("questLatitude",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getDouble("questLatitude"));
 
-                quests.get(i+quests.size()).put("questLongitude",
-                        questListFromQuestClass.get(i+quests.size()).getDouble("questLongitude"));
+                quests.get(i+numberOfUserQuests).put("questLongitude",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getDouble("questLongitude"));
 
-                quests.get(i+quests.size()).saveInBackground();
+                quests.get(i+numberOfUserQuests).saveInBackground();
             }
+            
 
             updateQuestList(questTypeSinner.getSelectedItem().toString(), alignment);
             Toast.makeText(this,"Update Successful",Toast.LENGTH_SHORT).show();
