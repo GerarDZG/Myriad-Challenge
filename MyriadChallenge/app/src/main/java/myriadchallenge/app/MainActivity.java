@@ -30,8 +30,8 @@ public class MainActivity extends Activity {
 
     EditText enteredUsername, enteredPassword;
 
-    SharedPreferences logInPreference, usernamePreference;
-    SharedPreferences.Editor logInEditor, usernameEditor;
+    SharedPreferences logInPreference;
+    SharedPreferences.Editor logInEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +43,6 @@ public class MainActivity extends Activity {
 
         logInPreference = this.getSharedPreferences("Log In", MODE_PRIVATE);
         logInEditor = logInPreference.edit();
-
-        usernamePreference = this.getSharedPreferences("Username", MODE_PRIVATE);
-        usernameEditor = usernamePreference.edit();
 
         logInEditor.putBoolean("User Logged In", false);
         logInEditor.commit();
@@ -84,11 +81,9 @@ public class MainActivity extends Activity {
         super.onResume();
         String username;
         if (logInPreference.getBoolean("User Logged In",false)){
-            username = usernamePreference.getString("Username","User");
-            userParse = ParseUser.getCurrentUser();
             enteredUsername.setText("");
             enteredPassword.setText("");
-            Toast.makeText(this,username + " was logged out",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"You are now logged out",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -146,7 +141,6 @@ public class MainActivity extends Activity {
 
     public void logInUser(String user, String pass){
 
-        final String finalUser = user;
         userParse.logInInBackground(user,pass,new LogInCallback() {
             @Override
             public void done(ParseUser parseUser, ParseException e) {
@@ -154,8 +148,6 @@ public class MainActivity extends Activity {
                     logInEditor.putBoolean("User Logged In", true);
                     logInEditor.commit();
 
-                    usernameEditor.putString("Username",finalUser);
-                    usernameEditor.commit();
 
                     Intent intent = new Intent(MainActivity.this, QuestListActivity.class);
                     startActivity(intent);

@@ -40,6 +40,7 @@
     <string name="action_logout">Log Out</string>
     <string name="action_quest_accepted">Quest Accepted!</string>
     <string name="prompt_filter_quests">Filter Quests!</string>
+    <string name="action_get_more_quests">Get More Quests!</string>
 
     <string-array name="alignment_array">
         <item>GOOD</item>

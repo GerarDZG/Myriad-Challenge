@@ -29,7 +29,7 @@ public class QuestListActivity extends ListActivity {
     TextView tvDispName, tvLocation, tvAlignment;
     String displayName, locationOfOrigin, alignment;
 
-    List<ParseObject> quests;
+    List<ParseObject> quests, questListFromQuestClass;
 
     ParseUser user;
 
@@ -176,9 +176,6 @@ public class QuestListActivity extends ListActivity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             Intent intent = new Intent(QuestListActivity.this, SettingsActivity.class);
-            intent.putExtra("Display Name",displayName);
-            intent.putExtra("Location of Origin",locationOfOrigin);
-            intent.putExtra("Alignment",alignment);
             startActivity(intent);
             finish();
             return true;
@@ -187,7 +184,83 @@ public class QuestListActivity extends ListActivity {
             logOutUser();
             return true;
         }
+        else if (id == R.id.action_get_more_quests){
+            pullQuestList();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void pullQuestList() {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    objectsWereRetrievedSuccessfullyForRefreshQuestList(objects);
+                    updateQuestList(questTypeSinner.getSelectedItem().toString(), alignment);
+                }
+                else {
+                    objectRetrievalFailed(e);
+                }
+            }
+        });
+    }
+
+    private void objectsWereRetrievedSuccessfullyForRefreshQuestList(List<ParseObject> objects) {
+        questListFromQuestClass = objects;
+
+        // if the number of quests that the user holds and the number of quests in QuestClass are
+        // the same, then the user holds all the quests.
+        if( quests.size() == questListFromQuestClass.size() ){
+            Toast.makeText(this,"There are no more quests at the moment",Toast.LENGTH_SHORT).show();
+        }
+        // else if the quests the user holds are less than the number of quests in QuestClass, then
+        // the user is missing some quests, so retrieve them from the main copy to the user's copy,
+        // and save the user's copy.
+        else if( quests.size() < questListFromQuestClass.size() ){
+            int numberOfNewQuests = questListFromQuestClass.size() - quests.size();
+
+            for(int i = 0; i < numberOfNewQuests; i++){
+                quests.add(new ParseObject("QuestClass_" + user.getObjectId()));
+            }
+
+            for(int i = 0; i < numberOfNewQuests; i++){
+                quests.get(i+quests.size()).put("questNumber",
+                        questListFromQuestClass.get(i+quests.size()).getInt("questNumber"));
+
+                quests.get(i+quests.size()).put("questName",
+                        questListFromQuestClass.get(i+quests.size()).getString("questName"));
+
+                quests.get(i+quests.size()).put("questAlignment",
+                        questListFromQuestClass.get(i+quests.size()).getString("questAlignment"));
+
+                quests.get(i+quests.size()).put("questGiver",
+                        questListFromQuestClass.get(i+quests.size()).getString("questGiver"));
+
+                quests.get(i+quests.size()).put("questStatus",
+                        questListFromQuestClass.get(i+quests.size()).getString("questStatus"));
+
+                quests.get(i+quests.size()).put("questGiverLatitude",
+                        questListFromQuestClass.get(i+quests.size()).getDouble("questGiverLatitude"));
+
+                quests.get(i+quests.size()).put("questGiverLongitude",
+                        questListFromQuestClass.get(i+quests.size()).getDouble("questGiverLongitude"));
+
+                quests.get(i+quests.size()).put("questDetails",
+                        questListFromQuestClass.get(i+quests.size()).getString("questDetails"));
+
+                quests.get(i+quests.size()).put("questLatitude",
+                        questListFromQuestClass.get(i+quests.size()).getDouble("questLatitude"));
+
+                quests.get(i+quests.size()).put("questLongitude",
+                        questListFromQuestClass.get(i+quests.size()).getDouble("questLongitude"));
+
+                quests.get(i+quests.size()).saveInBackground();
+            }
+
+            updateQuestList(questTypeSinner.getSelectedItem().toString(), alignment);
+            Toast.makeText(this,"Update Successful",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void logOutUser(){

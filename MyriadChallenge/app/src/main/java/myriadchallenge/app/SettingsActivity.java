@@ -72,9 +72,9 @@ public class SettingsActivity extends Activity {
             }
         }
         catch (NullPointerException e){
-            // No name entered
+            // Something went wrong, so displayName
+            // stays the same as it was read from Parse.
         }
-        intent.putExtra("Display Name",displayName);
 
         try{
             // If location was entered, update locationOfOrigin
@@ -84,9 +84,9 @@ public class SettingsActivity extends Activity {
             }
         }
         catch (NullPointerException e){
-            // No location entered
+            // Something went wrong, so locationOfOrigin
+            // stays the same as it was read from Parse.
         }
-        intent.putExtra("Location of Origin",locationOfOrigin);
 
         try{
             // If alignment was changed, update alignment
@@ -94,15 +94,11 @@ public class SettingsActivity extends Activity {
                 alignment = alignmentSpinner.getSelectedItem().toString();
                 user.put("userAlignment",alignment);
             }
-            else{
-                alignment = "NEUTRAL";
-            }
         }
         catch (NullPointerException e){
-            // No alignment change
-            alignment = "NEUTRAL";
+            // Something went wrong, so alignment
+            // stays the same as it was read from Parse.
         }
-        intent.putExtra("Alignment",alignment);
 
         user.saveInBackground(new SaveCallback() {
             @Override
@@ -114,8 +110,10 @@ public class SettingsActivity extends Activity {
     }
 
     private void returnToQuestListActivity(ParseException e) {
-        startActivity(intent);
-        finish();
+        if(e == null){
+            startActivity(intent);
+            finish();
+        }
     }
 
     public void cancelButtonPressed(){
