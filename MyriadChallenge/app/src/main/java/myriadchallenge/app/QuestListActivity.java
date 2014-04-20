@@ -2,12 +2,10 @@ package myriadchallenge.app;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -45,10 +43,7 @@ public class QuestListActivity extends ListActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-
         super.onCreate(savedInstanceState);
-
-        String[] quests;
 
         setContentView(R.layout.quest_list_activity);
 
@@ -66,7 +61,7 @@ public class QuestListActivity extends ListActivity {
 
         questTypeSinner = (Spinner)findViewById(R.id.quest_type_spinner);
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass_" + user.getObjectId());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
@@ -94,12 +89,12 @@ public class QuestListActivity extends ListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass_" + user.getObjectId());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {
                     objectsWereRetrievedSuccessfully(objects);
-                    updateQuestList("AVAILABLE", alignment);
+                    updateQuestList(questTypeSinner.getSelectedItem().toString(), alignment);
                 }
                 else {
                     objectRetrievalFailed(e);

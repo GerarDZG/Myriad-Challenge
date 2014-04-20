@@ -18,6 +18,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
@@ -36,6 +37,8 @@ public class DetailsActivity extends FragmentActivity {
 
     ParseObject currentQuest;
 
+    ParseUser user;
+
     String questId;
 
     final int INVALID_QUEST_NUMBER = 0xFFFFFFFF;
@@ -50,6 +53,8 @@ public class DetailsActivity extends FragmentActivity {
 
         Intent intent = getIntent();
 
+        user = ParseUser.getCurrentUser();
+
         questNumber = INVALID_QUEST_NUMBER;
 
         try{
@@ -59,7 +64,7 @@ public class DetailsActivity extends FragmentActivity {
             questId = null;
         }
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass_" + user.getObjectId());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e == null) {

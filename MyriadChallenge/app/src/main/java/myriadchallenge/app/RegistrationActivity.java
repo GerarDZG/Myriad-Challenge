@@ -9,18 +9,23 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.parse.Parse;
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+
+import java.util.List;
+import java.util.Vector;
 
 public class RegistrationActivity extends Activity{
 
     String registrationUserNameString, registrationPasswordString, registrationRetypePasswordString,
-        registrationDisplayNameString, registrationAlignmentString;
+        registrationDisplayNameString, registrationAlignmentString, registrationLocationOfOriginString;
 
     EditText registrationUserName, registrationPassword, registrationRetypePassword,
-        registrationDisplayName;
+        registrationDisplayName, registrationLocationOfOrigin;
 
     Spinner registrationAlignmentSpinner;
 
@@ -41,6 +46,7 @@ public class RegistrationActivity extends Activity{
         registrationPassword = (EditText)findViewById(R.id.registration_password);
         registrationRetypePassword = (EditText)findViewById(R.id.registration_retype_password);
         registrationDisplayName = (EditText)findViewById(R.id.registration_display_name);
+        registrationLocationOfOrigin = (EditText)findViewById(R.id.registration_location_of_origin);
 
         registrationAlignmentSpinner = (Spinner)findViewById(R.id.registration_alignment_spinner);
 
@@ -71,6 +77,7 @@ public class RegistrationActivity extends Activity{
             registrationRetypePasswordString = registrationRetypePassword.getText().toString();
             registrationDisplayNameString = registrationDisplayName.getText().toString();
             registrationAlignmentString = registrationAlignmentSpinner.getSelectedItem().toString();
+            registrationLocationOfOriginString = registrationLocationOfOrigin.getText().toString();
 
             if( !(registrationPasswordString.equals(registrationRetypePasswordString)) ){
                 registrationRetypePassword.setError("The passwords do not match");
@@ -81,7 +88,7 @@ public class RegistrationActivity extends Activity{
             }
         }
         catch (NullPointerException e){
-            Toast.makeText(this, "Looks like one of the fields was not entered!", 0).show();
+            Toast.makeText(this,"Looks like one of the fields was not entered!",Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -89,8 +96,6 @@ public class RegistrationActivity extends Activity{
     public void registerNewUser(String newUsername,String newPassword,
                                 String newDisplayName, String newAlignment){
 
-        final String finalDisplayName = newDisplayName;
-        final String finalAlignment = newAlignment;
         boolean usernameAndPasswordProvided = true;
 
         if(  newUsername.isEmpty() ){
@@ -106,6 +111,9 @@ public class RegistrationActivity extends Activity{
         if(usernameAndPasswordProvided){
             user.setUsername(newUsername);
             user.setPassword(newPassword);
+            user.put("userAlignment",newAlignment);
+            user.put("userDisplayName",newDisplayName);
+            user.put("userLocationOfOrigin",registrationLocationOfOriginString);
 
             user.signUpInBackground(new SignUpCallback() {
                 @Override
@@ -130,18 +138,62 @@ public class RegistrationActivity extends Activity{
                         }
                     }
                     else{
-                        Intent intent = new Intent(RegistrationActivity.this, QuestListActivity.class);
-                        intent.putExtra("Display Name", finalDisplayName);
-                        intent.putExtra("Alignment", finalAlignment);
-                        startActivity(intent);
-                        finish();
+                        user.saveInBackground();
+
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                if (e == null) {
+                                    objectsWereRetrievedSuccessfully(objects);
+                                    Intent intent = new Intent(RegistrationActivity.this,
+                                            QuestListActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                                else {
+                                    objectRetrievalFailed(e);
+                                }
+                            }
+                        });
                     }
                 }
             });
+        }
+    }
 
-            user.put("userAlignment",newAlignment);
-            user.put("userDisplayName",newDisplayName);
-            user.saveInBackground();
+    private void objectRetrievalFailed(ParseException e) {
+        switch (e.getCode()){
+            case ParseException.OBJECT_NOT_FOUND:
+                Toast.makeText(this,"No quests are available",Toast.LENGTH_SHORT).show();
+                break;
+            case ParseException.CONNECTION_FAILED:
+                Toast.makeText(this,"Connection Failed!",Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void objectsWereRetrievedSuccessfully(List<ParseObject> objects) {
+        Vector<ParseObject> userQuestVector = new Vector<ParseObject>();
+
+        for(int i = 0; i < objects.size(); i++){
+            userQuestVector.add(new ParseObject("QuestClass_" + user.getObjectId()));
+        }
+
+        for(int i = 0; i < userQuestVector.size(); i++){
+            userQuestVector.get(i).put("questNumber",objects.get(i).getInt("questNumber"));
+            userQuestVector.get(i).put("questName",objects.get(i).getString("questName"));
+            userQuestVector.get(i).put("questAlignment",objects.get(i).getString("questAlignment"));
+            userQuestVector.get(i).put("questGiver",objects.get(i).getString("questGiver"));
+            userQuestVector.get(i).put("questStatus",objects.get(i).getString("questStatus"));
+            userQuestVector.get(i).put("questGiverLatitude",objects.get(i).getDouble("questGiverLatitude"));
+            userQuestVector.get(i).put("questGiverLongitude",objects.get(i).getDouble("questGiverLongitude"));
+            userQuestVector.get(i).put("questDetails",objects.get(i).getString("questDetails"));
+            userQuestVector.get(i).put("questLatitude",objects.get(i).getDouble("questLatitude"));
+            userQuestVector.get(i).put("questLongitude",objects.get(i).getDouble("questLongitude"));
+
+            userQuestVector.get(i).saveInBackground();
         }
     }
 }
