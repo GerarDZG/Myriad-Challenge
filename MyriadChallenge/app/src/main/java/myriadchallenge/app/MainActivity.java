@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.NetworkOnMainThreadException;
-import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -85,11 +84,11 @@ public class MainActivity extends Activity {
         super.onResume();
         String username;
         if (logInPreference.getBoolean("User Logged In",false)){
-            username = new String(usernamePreference.getString("Username","User"));
-            userParse.logOut();
+            username = usernamePreference.getString("Username","User");
+            userParse = ParseUser.getCurrentUser();
             enteredUsername.setText("");
             enteredPassword.setText("");
-            Toast.makeText(this,username + " was logged out",0).show();
+            Toast.makeText(this,username + " was logged out",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -141,7 +140,7 @@ public class MainActivity extends Activity {
             }
         }
         catch(NullPointerException e){
-            Toast.makeText(this, "Looks like one of the fields was not entered!", 0).show();
+            Toast.makeText(this, "Looks like one of the fields was not entered!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -193,7 +192,8 @@ public class MainActivity extends Activity {
 
         try{
             passwordString = enteredPassword.getText().toString();
-        }catch (NullPointerException e){
+        }
+        catch (NullPointerException e){
             passwordString = "";
         }
 

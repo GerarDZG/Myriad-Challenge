@@ -33,6 +33,24 @@
         android:typeface="serif"
     />
 
+    <Spinner
+        android:id="@+id/quest_type_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/quest_type"
+        android:prompt="@string/prompt_quest_type"
+        android:gravity="center_horizontal|center_vertical"
+    />
+
+    <Button
+        android:id="@+id/filter_quest_list_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/prompt_filter_quests"
+        android:textStyle="bold"
+    />
+
     <ListView android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dip"

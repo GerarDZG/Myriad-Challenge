@@ -1,12 +1,7 @@
 package myriadchallenge.app;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PaintDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,36 +14,19 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class DetailsActivity extends FragmentActivity {
 
-    String[] questsNames = new String[] {"Bandits in the Woods", "Special Delivery",
-            "Filthy Mongrel"};
-
-    String[] questsAlignments = new String[] {"GOOD", "NEUTRAL", "EVIL"};
-
-    String[] questsGivers = new String[] {"HotDog The Bounty Hunter", "Sir Jimmy The Swift",
-            "Prince Jack, The Iron Horse"};
-
-    String[] questsDetails = new String[] {"The famed bounty hunter HotDog has requested the aid of a hero in ridding the woods of terrifying bandits who have thus far eluded his capture, as he is actually a dog, and cannot actually grab things more than 6 feet off the ground.",
-            "Sir Jimmy was once the fastest man in the kingdom, brave as any soldier and wise as a king. Unfortunately, age catches us all in the end, and he has requested that I, his personal scribe, find a hero to deliver a package of particular importance--and protect it with their life.",
-            "That strange dog that everyone is treating like a bounty-hunter must go. By the order of Prince Jack, that smelly, disease ridden mongrel must be removed from our streets by any means necessary. He is disrupting the lives of ordinary citizens, and it's just really weird. Make it gone."};
-
-
-    double[][] questsLocations = new double[][]{
-            {46.908588, -96.808991},
-            {46.8657639, -96.7363173},
-            {46.892386,-96.799669}
-            };
-
-    double[][] questGiversLocations = new double[][]{
-            {46.8541979, -96.8285138},
-            {46.8739748, -96.806112},
-            {46.8739748, -96.806112}
-    };
-
-    private int questNumber = 0xFF;
+    private int questNumber;
 
     private GoogleMap mMap;
 
@@ -56,123 +34,176 @@ public class DetailsActivity extends FragmentActivity {
 
     Button acceptButton;
 
-    SharedPreferences questAcceptedPreference;
-    SharedPreferences.Editor questAcceptedEditor;
+    ParseObject currentQuest;
 
+    String questId;
 
+    final int INVALID_QUEST_NUMBER = 0xFFFFFFFF;
+
+    String questStatus;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quest_details_activity);
 
-        acceptButton = (Button)findViewById(R.id.accept_button);
-        questAcceptedPreference = this.getSharedPreferences("Quest Accept",MODE_PRIVATE);
-        questAcceptedEditor = questAcceptedPreference.edit();
+        Intent intent = getIntent();
+
+        questNumber = INVALID_QUEST_NUMBER;
 
         try{
-            if( questAcceptedPreference.getBoolean("Quest Accept",false) == true ){
-                acceptButton.setText("Quest Accepted!");
-            }
-            else{
-                acceptButton.setText("Accept Quest");
-            }
+            questId = intent.getExtras().getString("Quest ID");
         }
-        catch(NullPointerException e){
-            questAcceptedEditor.putBoolean("Quest Accept", false);
-            questAcceptedEditor.commit();
-
-            acceptButton.setText("Accept Quest");
+        catch (NullPointerException e){
+            questId = null;
         }
 
-        acceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(view == acceptButton){
-                    if( questAcceptedPreference.getBoolean("Quest Accept",false) == false ){
-                        questAcceptedEditor.putBoolean("Quest Accept",true);
-                        questAcceptedEditor.commit();
-                        acceptButton.setText("Quest Accepted!");
-                    }
-                    else{
-                        questAcceptedEditor.putBoolean("Quest Accept",false);
-                        questAcceptedEditor.commit();
-                        acceptButton.setText("Accept Quest");
-                    }
-
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    objectsWereRetrievedSuccessfully(objects);
+                    showQuestDetails();
+                }
+                else {
+                    objectRetrievalFailed(e);
                 }
             }
         });
 
-        Intent intent = getIntent();
-
-        String questName = intent.getExtras().getString("Quest Name");
-
-        for(int i = 0; i < questsNames.length; i++){
-            if( questName.equals(questsNames[i]) ){
-                questNumber = i;
-            }
-        }
-
-        tvQuestName = (TextView) findViewById(R.id.quest_name);
-        tvQuestAlignment = (TextView) findViewById(R.id.quest_alignment);
-        tvQuestGiver = (TextView) findViewById(R.id.quest_giver);
-        tvQuestDetails = (TextView) findViewById(R.id.quest_details);
-
-
-        tvQuestName.setText(" " + questsNames[questNumber]);
-        tvQuestName.setTypeface(Typeface.SERIF, Typeface.BOLD);
-
-
-        tvQuestAlignment.setText("\n " + questsAlignments[questNumber] + "\n");
-        tvQuestAlignment.setTypeface(null, Typeface.BOLD);
-        switch(questNumber){
-            case 0:
-                tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.holo_green_light));
-                break;
-            default:
-                break;
-            case 1:
-                tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.black));
-                break;
-            case 2:
-                tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                break;
-        }
-
-        tvQuestGiver.setText(" " + questsGivers[questNumber] + "\n");
-
-        tvQuestDetails.setText("\t" + questsDetails[questNumber] + "\n");
-
-        setUpMapIfNeeded();
+        acceptButton = (Button)findViewById(R.id.accept_button);
+        acceptButton.setClickable(true);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        setUpMapIfNeeded();
-    }
-
-    public void setUpMapIfNeeded(){
-
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
+        if(questNumber != INVALID_QUEST_NUMBER){
+            setUpMapIfNeeded();
         }
     }
 
+    private void showQuestDetails() {
+        if(questNumber != INVALID_QUEST_NUMBER){
+
+            if( questStatus.equals("AVAILABLE") ){
+                acceptButton.setText("Accept Quest");
+            }
+            else if( questStatus.equals("ACCEPTED") ){
+                acceptButton.setText("Quest Accepted! Press to Complete");
+            }
+            else{
+                acceptButton.setText("Quest Completed!");
+                acceptButton.setClickable(false);
+            }
+
+            acceptButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view == acceptButton){
+                        if( questStatus.equals("AVAILABLE") ){
+                            acceptButton.setText("Quest Accepted! Press to Complete");
+                            currentQuest.put("questStatus", "ACCEPTED");
+                            questStatus = "ACCEPTED";
+                        }
+                        else{
+                            acceptButton.setText("Quest Completed!");
+                            currentQuest.put("questStatus", "COMPLETED");
+                            acceptButton.setClickable(false);
+                        }
+
+                        currentQuest.saveInBackground();
+                    }
+                }
+            });
+
+            tvQuestName = (TextView) findViewById(R.id.quest_name);
+            tvQuestAlignment = (TextView) findViewById(R.id.quest_alignment);
+            tvQuestGiver = (TextView) findViewById(R.id.quest_giver);
+            tvQuestDetails = (TextView) findViewById(R.id.quest_details);
+
+
+            tvQuestName.setText(" " + currentQuest.getString("questName"));
+            tvQuestName.setTypeface(Typeface.SERIF, Typeface.BOLD);
+
+
+            tvQuestAlignment.setText("\n " + currentQuest.getString("questAlignment") + "\n");
+            tvQuestAlignment.setTypeface(null, Typeface.BOLD);
+            switch(questNumber){
+                case 0:
+                    tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.holo_green_light));
+                    break;
+                default:
+                    break;
+                case 1:
+                    tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.black));
+                    break;
+                case 2:
+                    tvQuestAlignment.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    break;
+            }
+
+            tvQuestGiver.setText(" " + currentQuest.getString("questGiver") + "\n");
+
+            tvQuestDetails.setText("\t" + currentQuest.getString("questDetails") + "\n");
+
+            setUpMapIfNeeded();
+        }
+    }
+
+    private void objectRetrievalFailed(ParseException e) {
+        questNumber = INVALID_QUEST_NUMBER;
+
+        switch (e.getCode()){
+            case ParseException.OBJECT_NOT_FOUND:
+                Toast.makeText(this, "No quests are available", Toast.LENGTH_SHORT).show();
+                finish();
+                break;
+            case ParseException.CONNECTION_FAILED:
+                Toast.makeText(this,"Connection Failed!",Toast.LENGTH_SHORT).show();
+                finish();
+                break;
+            default:
+                Toast.makeText(this,"Something went wrong :/", Toast.LENGTH_SHORT).show();
+                finish();
+                break;
+        }
+    }
+
+    private void objectsWereRetrievedSuccessfully(List<ParseObject> object) {
+        for(int i = 0; i < object.size(); i++){
+            if(object.get(i).getObjectId().equals(questId)){
+                currentQuest = object.get(i);
+                break;
+            }
+        }
+
+        questNumber = currentQuest.getInt("questNumber");
+        questStatus = currentQuest.getString("questStatus");
+    }
+
+    public void setUpMapIfNeeded(){
+            // Do a null check to confirm that we have not already instantiated the map.
+            if (mMap == null) {
+                // Try to obtain the map from the SupportMapFragment.
+                mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view))
+                        .getMap();
+                // Check if we were successful in obtaining the map.
+                if (mMap != null) {
+                    if(questNumber != INVALID_QUEST_NUMBER){
+                    setUpMap();
+                    }
+                }
+            }
+    }
+
     private void setUpMap(){
+        LatLng mQuestLocationLatLng = new LatLng(currentQuest.getDouble("questLatitude"),
+                currentQuest.getDouble("questLongitude"));
 
-        LatLng mQuestLocationLatLng = new LatLng(questsLocations[questNumber][0],
-                questsLocations[questNumber][1]);
-
-        LatLng mQuestGiverLatLng = new LatLng(questGiversLocations[questNumber][0],
-                questGiversLocations[questNumber][1]);
+        LatLng mQuestGiverLatLng = new LatLng(currentQuest.getDouble("questGiverLatitude"),
+                currentQuest.getDouble("questGiverLongitude"));
 
         MarkerOptions mQuestLocationMarkerOptions =
                 new MarkerOptions().position(mQuestLocationLatLng).title("Quest Location");

@@ -34,15 +34,23 @@
     <string name="settings_location_of_origin">Location of Origin</string>
     <string name="settings_display_name">Display Name</string>
     <string name="prompt_alignment">Select your alignment!</string>
+    <string name="prompt_quest_type">Select the Type of Quest</string>
     <string name="register_short">Register</string>
     <string name="prompt_retype_password">Retype Password</string>
     <string name="action_logout">Log Out</string>
     <string name="action_quest_accepted">Quest Accepted!</string>
+    <string name="prompt_filter_quests">Filter Quests!</string>
 
     <string-array name="alignment_array">
         <item>GOOD</item>
         <item>NEUTRAL</item>
         <item>EVIL</item>
+    </string-array>
+
+    <string-array name="quest_type">
+        <item>AVAILABLE</item>
+        <item>ACCEPTED</item>
+        <item>COMPLETED</item>
     </string-array>
 
 </resources>

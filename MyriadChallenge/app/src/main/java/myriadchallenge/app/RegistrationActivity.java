@@ -79,7 +79,6 @@ public class RegistrationActivity extends Activity{
                 registerNewUser(registrationUserNameString, registrationPasswordString,
                         registrationDisplayNameString, registrationAlignmentString);
             }
-
         }
         catch (NullPointerException e){
             Toast.makeText(this, "Looks like one of the fields was not entered!", 0).show();
@@ -135,9 +134,14 @@ public class RegistrationActivity extends Activity{
                         intent.putExtra("Display Name", finalDisplayName);
                         intent.putExtra("Alignment", finalAlignment);
                         startActivity(intent);
+                        finish();
                     }
                 }
             });
+
+            user.put("userAlignment",newAlignment);
+            user.put("userDisplayName",newDisplayName);
+            user.saveInBackground();
         }
     }
 }
