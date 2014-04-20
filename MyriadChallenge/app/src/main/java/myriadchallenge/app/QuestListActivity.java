@@ -91,19 +91,39 @@ public class QuestListActivity extends ListActivity {
         tvAlignment.setText("Alignment: " + alignment + "\n\n\n");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("QuestClass");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    objectsWereRetrievedSuccessfully(objects);
+                    updateQuestList("AVAILABLE", alignment);
+                }
+                else {
+                    objectRetrievalFailed(e);
+                }
+            }
+        });
+    }
+    
+
     private void updateQuestList(String questType, String updateAlignment) {
         Vector<String> vector = new Vector<String>();
         if( !updateAlignment.equals("NEUTRAL") ){
             for(int i = 0; i < quests.size(); i++){
-                if(quests.get(i).getString("questStatus").equals(questType)
-                        && quests.get(i).getString("questAlignment").equals(updateAlignment)){
+                if( quests.get(i).getString("questStatus").equals(questType)
+                        && quests.get(i).getString("questAlignment").equals(updateAlignment) ){
                     vector.add(quests.get(i).getString("questName"));
                 }
             }
         }
         else{
             for(int i = 0; i < quests.size(); i++){
-                vector.add(quests.get(i).getString("questName"));
+                if( quests.get(i).getString("questStatus").equals(questType) ){
+                    vector.add(quests.get(i).getString("questName"));
+                }
             }
         }
 
