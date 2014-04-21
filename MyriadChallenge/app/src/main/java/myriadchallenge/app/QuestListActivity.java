@@ -255,9 +255,14 @@ public class QuestListActivity extends ListActivity {
                 quests.get(i+numberOfUserQuests).put("questLongitude",
                         questListFromQuestClass.get(i+numberOfUserQuests).getDouble("questLongitude"));
 
+                quests.get(i+numberOfUserQuests).put("questGiverImage",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getParseFile("questGiverImage"));
+
+                quests.get(i+numberOfUserQuests).put("questImage",
+                        questListFromQuestClass.get(i+numberOfUserQuests).getParseFile("questImage"));
+
                 quests.get(i+numberOfUserQuests).saveInBackground();
             }
-            
 
             updateQuestList(questTypeSinner.getSelectedItem().toString(), alignment);
             Toast.makeText(this,"Update Successful",Toast.LENGTH_SHORT).show();

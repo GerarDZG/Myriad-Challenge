@@ -185,13 +185,18 @@ public class RegistrationActivity extends Activity{
             userQuestVector.get(i).put("questNumber",objects.get(i).getInt("questNumber"));
             userQuestVector.get(i).put("questName",objects.get(i).getString("questName"));
             userQuestVector.get(i).put("questAlignment",objects.get(i).getString("questAlignment"));
-            userQuestVector.get(i).put("questGiver",objects.get(i).getString("questGiver"));
             userQuestVector.get(i).put("questStatus",objects.get(i).getString("questStatus"));
+
+            userQuestVector.get(i).put("questGiver",objects.get(i).getString("questGiver"));
             userQuestVector.get(i).put("questGiverLatitude",objects.get(i).getDouble("questGiverLatitude"));
             userQuestVector.get(i).put("questGiverLongitude",objects.get(i).getDouble("questGiverLongitude"));
+
             userQuestVector.get(i).put("questDetails",objects.get(i).getString("questDetails"));
             userQuestVector.get(i).put("questLatitude",objects.get(i).getDouble("questLatitude"));
             userQuestVector.get(i).put("questLongitude",objects.get(i).getDouble("questLongitude"));
+
+            userQuestVector.get(i).put("questGiverImage",objects.get(i).getParseFile("questGiverImage"));
+            userQuestVector.get(i).put("questImage",objects.get(i).getParseFile("questImage"));
 
             userQuestVector.get(i).saveInBackground();
         }

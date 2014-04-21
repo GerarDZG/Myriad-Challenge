@@ -1,6 +1,8 @@
 package myriadchallenge.app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -11,11 +13,16 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -45,6 +52,20 @@ public class DetailsActivity extends FragmentActivity {
 
     String questStatus;
 
+    byte[] questGiverImageByteArray, questImageByteArray;
+
+    Bitmap questGiverBitmap, questGiverAdjustedBitmap, questBitmap, questAdjustedBitmap;
+
+    MarkerOptions mQuestGiverMarkerOptions, mQuestLocationMarkerOptions;
+
+    Marker mQuestGiverMarker, mQuestLocationMarker;
+
+    protected int mDpi = 0;
+
+    protected int WIDTH_ADDITIONAL_RESIZE = 50;
+
+    protected int HEIGHT_ADDITIONAL_RESIZE = 50;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -54,6 +75,8 @@ public class DetailsActivity extends FragmentActivity {
         Intent intent = getIntent();
 
         user = ParseUser.getCurrentUser();
+
+        mDpi = getResources().getDisplayMetrics().densityDpi;
 
         questNumber = INVALID_QUEST_NUMBER;
 
@@ -204,20 +227,47 @@ public class DetailsActivity extends FragmentActivity {
     }
 
     private void setUpMap(){
+
+        ParseFile questGiverImageParseFile = currentQuest.getParseFile("questGiverImage");
+        ParseFile questImageParseFile = currentQuest.getParseFile("questImage");
+
+        questGiverImageParseFile.getDataInBackground(new GetDataCallback() {
+            @Override
+            public void done(byte[] bytes, ParseException e) {
+                questGiverImageByteArray = bytes;
+
+                questGiverBitmap = BitmapFactory.decodeByteArray(questGiverImageByteArray,
+                        0, questGiverImageByteArray.length);
+
+                questGiverAdjustedBitmap = adjustImage(questGiverBitmap,WIDTH_ADDITIONAL_RESIZE,
+                        HEIGHT_ADDITIONAL_RESIZE);
+            }
+        });
+
+        questImageParseFile.getDataInBackground(new GetDataCallback() {
+            @Override
+            public void done(byte[] bytes, ParseException e) {
+                questImageByteArray = bytes;
+
+                questBitmap = BitmapFactory.decodeByteArray(questImageByteArray,
+                        0, questImageByteArray.length);
+
+                questAdjustedBitmap = adjustImage(questBitmap, WIDTH_ADDITIONAL_RESIZE,
+                        HEIGHT_ADDITIONAL_RESIZE);
+            }
+        });
+
         LatLng mQuestLocationLatLng = new LatLng(currentQuest.getDouble("questLatitude"),
                 currentQuest.getDouble("questLongitude"));
+
+        mQuestLocationMarkerOptions =
+                new MarkerOptions().position(mQuestLocationLatLng).title("Quest Location");
 
         LatLng mQuestGiverLatLng = new LatLng(currentQuest.getDouble("questGiverLatitude"),
                 currentQuest.getDouble("questGiverLongitude"));
 
-        MarkerOptions mQuestLocationMarkerOptions =
-                new MarkerOptions().position(mQuestLocationLatLng).title("Quest Location");
-
-        MarkerOptions mQuestGiverMarkerOptions =
+        mQuestGiverMarkerOptions =
                 new MarkerOptions().position(mQuestGiverLatLng).title("Quest Giver");
-
-        mMap.addMarker(mQuestLocationMarkerOptions);
-        mMap.addMarker(mQuestGiverMarkerOptions);
 
         LatLngBounds.Builder mBuilder = new LatLngBounds.Builder();
 
@@ -237,6 +287,120 @@ public class DetailsActivity extends FragmentActivity {
 
         CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(mBounds,width,height,padding);
 
+        mQuestGiverMarker = mMap.addMarker(mQuestGiverMarkerOptions);
+
+        mQuestLocationMarker = mMap.addMarker(mQuestLocationMarkerOptions);
+
         mMap.animateCamera(mCameraUpdate);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (marker.equals(mQuestGiverMarker)) {
+                    toggleQuestGiverIcon();
+                } else if (marker.equals(mQuestLocationMarker)) {
+                    toggleQuestIcon();
+                }
+
+                return true;
+            }
+        });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                setQuestGiverMarkerToDefault();
+
+                setQuestLocationMarkerToDefault();
+            }
+        });
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                // We can add code here to do something with the latLng.
+
+                // Show quest giver image and quest location image.
+                setQuestGiverMarkerToImageIcon();
+
+                setQuestLocationMarkerToImageIcon();
+                mQuestLocationMarker.showInfoWindow();
+            }
+        });
+    }
+
+    private void toggleQuestGiverIcon() {
+
+        BitmapDescriptor currentIcon = mQuestGiverMarkerOptions.getIcon();
+
+        if(currentIcon == null){
+            setQuestGiverMarkerToImageIcon();
+            mQuestGiverMarker.showInfoWindow();
+        }
+        else{
+            setQuestGiverMarkerToDefault();
+            mQuestGiverMarker.showInfoWindow();
+        }
+    }
+
+    private void toggleQuestIcon() {
+        BitmapDescriptor currentIcon = mQuestLocationMarkerOptions.getIcon();
+
+        if(currentIcon == null){
+            setQuestLocationMarkerToImageIcon();
+            mQuestLocationMarker.showInfoWindow();
+        }
+        else{
+            setQuestLocationMarkerToDefault();
+            mQuestLocationMarker.showInfoWindow();
+        }
+    }
+
+
+    protected Bitmap adjustImage(Bitmap image, int widthAdjust, int heightAdjust) {
+        int dpi = image.getDensity();
+        if (dpi == mDpi)
+            return image;
+        else {
+            int width = (image.getWidth() * mDpi) / (widthAdjust*dpi);
+            int height = (image.getHeight() * mDpi) / (heightAdjust*dpi);
+            Bitmap adjustedImage = Bitmap.createScaledBitmap(image, width, height, true);
+            adjustedImage.setDensity(mDpi);
+            return adjustedImage;
+        }
+    }
+
+    private void setQuestGiverMarkerToDefault(){
+        mQuestGiverMarkerOptions.icon(null);
+
+        mQuestGiverMarker.remove();
+
+        mQuestGiverMarker = mMap.addMarker(mQuestGiverMarkerOptions);
+    }
+
+    private void setQuestGiverMarkerToImageIcon(){
+        mQuestGiverMarkerOptions.icon(
+                BitmapDescriptorFactory.fromBitmap(questGiverAdjustedBitmap));
+
+        mQuestGiverMarker.remove();
+
+        mQuestGiverMarker = mMap.addMarker(mQuestGiverMarkerOptions);
+    }
+
+    private void setQuestLocationMarkerToDefault(){
+        mQuestLocationMarkerOptions.icon(null);
+
+        mQuestLocationMarker.remove();
+
+        mQuestLocationMarker = mMap.addMarker(mQuestLocationMarkerOptions);
+    }
+
+    private void setQuestLocationMarkerToImageIcon(){
+        mQuestLocationMarkerOptions.icon(
+                BitmapDescriptorFactory.fromBitmap(questAdjustedBitmap));
+
+        mQuestLocationMarker.remove();
+
+        mQuestLocationMarker = mMap.addMarker(mQuestLocationMarkerOptions);
     }
 }
